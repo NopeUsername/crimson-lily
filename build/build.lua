@@ -41,9 +41,6 @@ end
 luacompactModules["src/ui/init.lua"] = function()
 	local UILib = load("src/lib/LinoriaLib.lua")	local window = UILib:CreateWindow({		Title = "Tragic Odyssey",		Center = true,		AutoShow = true	})	ODYSSEY.UI = window	ODYSSEY.Maid:GiveTask(function()		UILib:Unload()	end)
 end
-luacompactModules["src/ui/test.lua"] = function()
-	return function(UILib, window)	    local tab = window:AddTab("Test")	    local box = tab:AddLeftGroupbox("Box")	    box:AddLabel("asd")	    box:AddButton({	        Text = "Unload",	        Func = function()	            ODYSSEY.Maid:Destroy()	        end	    })	end
-end
 
 local env = assert(getgenv, "Unsupported exploit")()
 
