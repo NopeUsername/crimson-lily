@@ -31,6 +31,11 @@ local function InitPlaces(tab)
 				
 				if not character then return end
 				
+				local centerCF = center.CFrame
+				if centerCF.Y < 0 then
+					centerCF *= CFrame.new(0, math.abs(centerCF.Y) + 5, 0)
+				end
+				
 				character:SetPrimaryPartCFrame(center.CFrame)
 				task.wait(0.3)
 				character.PrimaryPart.Anchored = true
