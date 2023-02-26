@@ -22,12 +22,12 @@ local function InitDamage(tab)
 		end
 	})
 	box:AddSlider("DamageAmpValue", {
-		Compact = true,
-		Text = "",
+		Compact = false,
+		Text = "I don't recommend going over 20",
 		Default = ODYSSEY.Data.DamageAmpValue,
 		Min = 1,
 		Max = 100,
-		Rounding = 1,
+		Rounding = 0,
 		Callback = function(value)
 			ODYSSEY.Data.DamageAmpValue = value
 		end
