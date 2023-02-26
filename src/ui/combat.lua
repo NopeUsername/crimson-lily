@@ -42,7 +42,7 @@ local function InitOther(tab)
 	box:AddToggle("NoStamina", {
 		Text = "No dash stamina",
 		Default = ODYSSEY.Data.NoStamina,
-		Tooltip = "Yeah",
+		Tooltip = "Dash no longer consumes stamina",
 		Callback = function(value)
 			ODYSSEY.Data.NoStamina = value
 		end

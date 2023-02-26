@@ -46,6 +46,11 @@ function ODYSSEY.GetLocalCharacter()
 	return ODYSSEY.GetLocalPlayer().Character
 end
 
+function ODYSSEY.SendNotification(config)
+	config.Title = "Tragic Odyssey - Notification"
+	game:GetService("StarterGui"):SetCore("SendNotification", config)
+end
+
 -- init
 ODYSSEY.RemoteTamperer = load("src/logic/RemoteTamperer.lua")
 load("src/ui/init.lua")

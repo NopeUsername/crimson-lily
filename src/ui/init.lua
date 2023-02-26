@@ -11,3 +11,4 @@ ODYSSEY.Maid:GiveTask(function()
 end)
 
 load("src/ui/combat.lua")(UILib, window)
+load("src/ui/teleport.lua")(UILib, window)
