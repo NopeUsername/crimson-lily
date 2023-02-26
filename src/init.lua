@@ -52,3 +52,4 @@ load("src/ui/init.lua")
 
 -- logic
 load("src/logic/damage_tamper.lua")
+load("src/logic/combat_other.lua")

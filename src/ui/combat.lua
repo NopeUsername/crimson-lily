@@ -34,8 +34,24 @@ local function InitDamage(tab)
 	})
 end
 
+local function InitOther(tab)
+	local box = tab:AddRightGroupbox("Other")
+	
+	ODYSSEY.Data.NoStamina = false
+	
+	box:AddToggle("NoStamina", {
+		Text = "No dash stamina",
+		Default = ODYSSEY.Data.NoStamina,
+		Tooltip = "Yeah",
+		Callback = function(value)
+			ODYSSEY.Data.NoStamina = value
+		end
+	})
+end
+
 return function(UILib, window)
 	local tab = window:AddTab("Combat")
 	
 	InitDamage(tab)
+	InitOther(tab)
 end
