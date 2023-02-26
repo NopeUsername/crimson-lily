@@ -9,3 +9,5 @@ ODYSSEY.UI = window
 ODYSSEY.Maid:GiveTask(function()
 	UILib:Unload()
 end)
+
+load("src/ui/combat.lua")(UILib, window)

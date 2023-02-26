@@ -8,6 +8,7 @@ end
 -- services
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 -- modules
 local Maid = load("src/lib/Maid.lua")
@@ -15,6 +16,8 @@ local Maid = load("src/lib/Maid.lua")
 local ODYSSEY = {
     Hooks = {},
     MetaHooks = {},
+	
+	Data = {},
 
     Maid = Maid.new(),
     UI = nil,
@@ -34,6 +37,18 @@ ODYSSEY.Maid:GiveTask(function()
     table.clear(ODYSSEY)
 end)
 
+-- helpers
+function ODYSSEY.GetLocalPlayer()
+	return Players.LocalPlayer
+end
+
+function ODYSSEY.GetLocalCharacter()
+	return ODYSSEY.GetLocalPlayer().Character
+end
+
 -- init
 ODYSSEY.RemoteTamperer = load("src/logic/RemoteTamperer.lua")
 load("src/ui/init.lua")
+
+-- logic
+load("src/logic/damage_tamper.lua")

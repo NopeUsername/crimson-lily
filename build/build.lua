@@ -38,11 +38,17 @@ end
 luacompactModules["src/lib/Maid.lua"] = function()
 	--[=[		Manages the cleaning of events and other things. Useful for		encapsulating state and make deconstructors easy.		See the [Five Powerful Code Patterns talk](https://developer.roblox.com/en-us/videos/5-powerful-code-patterns-behind-top-roblox-games)		for a more in-depth look at Maids in top games.		```lua		local maid = Maid.new()		maid:GiveTask(function()			print("Cleaning up")		end)		maid:GiveTask(workspace.ChildAdded:Connect(print))		-- Disconnects all events, and executes all functions		maid:DoCleaning()		```		@class Maid	]=]	-- luacheck: pop	local Maid = {}	Maid.ClassName = "Maid"	--[=[		Constructs a new Maid object		```lua		local maid = Maid.new()		```		@return Maid	]=]	function Maid.new()		return setmetatable({			_tasks = {},		}, Maid)	end	--[=[		Returns true if the class is a maid, and false otherwise.		```lua		print(Maid.isMaid(Maid.new())) --> true		print(Maid.isMaid(nil)) --> false		```		@param value any		@return boolean	]=]	function Maid.isMaid(value)		return type(value) == "table" and value.ClassName == "Maid"	end	--[=[		Returns Maid[key] if not part of Maid metatable		```lua		local maid = Maid.new()		maid._current = Instance.new("Part")		print(maid._current) --> Part		maid._current = nil		print(maid._current) --> nil		```		@param index any		@return MaidTask	]=]	function Maid:__index(index)		if Maid[index] then			return Maid[index]		else			return self._tasks[index]		end	end	--[=[		Add a task to clean up. Tasks given to a maid will be cleaned when		maid[index] is set to a different value.		Task cleanup is such that if the task is an event, it is disconnected.		If it is an object, it is destroyed.		```		Maid[key] = (function)         Adds a task to perform		Maid[key] = (event connection) Manages an event connection		Maid[key] = (thread)           Manages a thread		Maid[key] = (Maid)             Maids can act as an event connection, allowing a Maid to have other maids to clean up.		Maid[key] = (Object)           Maids can cleanup objects with a `Destroy` method		Maid[key] = nil                Removes a named task.		```		@param index any		@param newTask MaidTask	]=]	function Maid:__newindex(index, newTask)		if Maid[index] ~= nil then			error(("Cannot use '%s' as a Maid key"):format(tostring(index)), 2)		end		local tasks = self._tasks		local oldTask = tasks[index]		if oldTask == newTask then			return		end		tasks[index] = newTask		if oldTask then			if type(oldTask) == "function" then				oldTask()			elseif type(oldTask) == "thread" then				task.cancel(oldTask)			elseif typeof(oldTask) == "RBXScriptConnection" then				oldTask:Disconnect()			elseif oldTask.Destroy then				oldTask:Destroy()			end		end	end	--[=[		Gives a task to the maid for cleanup, but uses an incremented number as a key.		@param task MaidTask -- An item to clean		@return number -- taskId	]=]	function Maid:GiveTask(task)		if not task then			error("Task cannot be false or nil", 2)		end		local taskId = #self._tasks + 1		self[taskId] = task		if type(task) == "table" and not task.Destroy then			warn("[Maid.GiveTask] - Gave table task without .Destroy\n\n" .. debug.traceback())		end		return taskId	end	--[=[		Gives a promise to the maid for clean.		@param promise Promise<T>		@return Promise<T>	]=]	function Maid:GivePromise(promise)		if not promise:IsPending() then			return promise		end		local newPromise = promise.resolved(promise)		local id = self:GiveTask(newPromise)		-- Ensure GC		newPromise:Finally(function()			self[id] = nil		end)		return newPromise	end	--[=[		Cleans up all tasks and removes them as entries from the Maid.		:::note		Signals that are already connected are always disconnected first. After that		any signals added during a cleaning phase will be disconnected at random times.		:::		:::tip		DoCleaning() may be recursively invoked. This allows the you to ensure that		tasks or other tasks. Each task will be executed once.		However, adding tasks while cleaning is not generally a good idea, as if you add a		function that adds itself, this will loop indefinitely.		:::	]=]	function Maid:DoCleaning()		local tasks = self._tasks		-- Disconnect all events first as we know this is safe		for index, job in pairs(tasks) do			if typeof(job) == "RBXScriptConnection" then				tasks[index] = nil				job:Disconnect()			end		end		-- Clear out tasks table completely, even if clean up tasks add more tasks to the maid		local index, job = next(tasks)		while job ~= nil do			tasks[index] = nil			if type(job) == "function" then				job()			elseif type(job) == "thread" then				task.cancel(job)			elseif typeof(job) == "RBXScriptConnection" then				job:Disconnect()			elseif job.Destroy then				job:Destroy()			end			index, job = next(tasks)		end	end	--[=[		Alias for [Maid.DoCleaning()](/api/Maid#DoCleaning)		@function Destroy		@within Maid	]=]	Maid.Destroy = Maid.DoCleaning	return Maid	
 end
+luacompactModules["src/logic/damage_tamper.lua"] = function()
+	local RemoteTamperer = ODYSSEY.RemoteTamperer	local ReplicatedStorage = game:GetService("ReplicatedStorage")	local toBlacklist = {}	local toIntercept = {}	for _, remote in ipairs(ReplicatedStorage.Remotes:GetDescendants()) do		local name = remote.Name				if string.match(name, "Take") and string.match(name, "Damage") then			table.insert(toBlacklist, remote)		end		if string.match(name, "Deal") and string.match(name, "Damage") then			table.insert(toIntercept, remote)		end	end	RemoteTamperer.TamperRemotes(toBlacklist, 99, function(remote, args, oldNamecall)		if ODYSSEY.Data.DamageReflect then			return false		end	end)	RemoteTamperer.TamperRemotes(toIntercept, 1, function(remote, args, oldNamecall)		if ODYSSEY.Data.DamageReflect then			local dealer, receiver = args[1], args[2]						if receiver == ODYSSEY.GetLocalCharacter() then				args[1] = receiver				args[2] = dealer			end		end	end)	RemoteTamperer.TamperRemotes(toIntercept, 2, function(remote, args, oldNamecall)		if ODYSSEY.Data.DamageAmp then			local amount = ODYSSEY.Data.DamageAmpValue			local fireServer = remote.FireServer						for _ = 1, amount do				-- TODO: Elementalist							fireServer(remote, table.unpack(args))			end						return false		end	end)
+end
 luacompactModules["src/logic/RemoteTamperer.lua"] = function()
-	local RemoteTamperer = {}	local TamperedRemotes = {}	local BlacklistedRemotes = {}	-- hook game	local oldNamecall	oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)	    if checkcaller() then	        return oldNamecall(self, ...)	    end	    local args = {...}	    local method = getnamecallmethod()	    if (self.ClassName == "RemoteEvent") and (method == "FireServer") then	        if BlacklistedRemotes[self] then	            return nil	        end	        if TamperedRemotes[self] then	            for _, tamperData in ipairs(TamperedRemotes[self]) do	                local ok, err = pcall(tamperData.Func, self, args, oldNamecall)	                if not ok then warn(err) end	            end	            local fireServer = self.FireServer	            return fireServer(self, table.unpack(args))	        end	    end	    return oldNamecall(self, ...)	end)	ODYSSEY.MetaHooks[oldNamecall] = {	    Object = game,	    Method = "__namecall"	}	-- API	function RemoteTamperer.TamperRemotes(remotes, priority, tamperFunc)	    for _, remote in ipairs(remotes) do	        local tamperData = TamperedRemotes[remote] or {}	        table.insert(tamperData, {	            Priority = priority,	            Func = tamperFunc	        })	       	        table.sort(tamperData, function(a, b)	            return a.Priority < b.Priority	        end)	        TamperedRemotes[remote] = tamperData	    end	end	function RemoteTamperer.BlacklistRemotes(remotes)	    for _, remote in ipairs(remotes) do	        BlacklistedRemotes[remote] = true	    end	end	function RemoteTamperer.UntamperRemotes(remotes)	    for _, remote in ipairs(remotes) do	        TamperedRemotes[remote] = nil	    end	end	function RemoteTamperer.UnblacklistRemotes(remotes)	    for _, remote in ipairs(remotes) do	        BlacklistedRemotes[remote] = nil	    end	end	return RemoteTamperer
+	local RemoteTamperer = {}	local TamperedRemotes = {}	local BlacklistedRemotes = {}	-- hook game	local oldNamecall	oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)	    if checkcaller() then	        return oldNamecall(self, ...)	    end	    local args = {...}	    local method = getnamecallmethod()	    if (self.ClassName == "RemoteEvent") and (method == "FireServer") then	        if BlacklistedRemotes[self] then	            return nil	        end	        if TamperedRemotes[self] then				local shouldFire = true								-- if any tamper funcs return false then it won't				-- do a default FireServer	            for _, tamperData in ipairs(TamperedRemotes[self]) do	                local ok, data = pcall(tamperData.Func, self, args, oldNamecall)	                if not ok then warn(data) end										if data == false then						shouldFire = false					end	            end								if shouldFire then					local fireServer = self.FireServer					return fireServer(self, table.unpack(args))				else					return nil				end	        end	    end	    return oldNamecall(self, ...)	end)	ODYSSEY.MetaHooks[oldNamecall] = {	    Object = game,	    Method = "__namecall"	}	ODYSSEY.Maid:GiveTask(function()		table.clear(TamperedRemotes)		table.clear(BlacklistedRemotes)	end)	-- API	function RemoteTamperer.TamperRemotes(remotes, priority, tamperFunc)	    for _, remote in ipairs(remotes) do	        local tamperData = TamperedRemotes[remote] or {}	        table.insert(tamperData, {	            Priority = priority,	            Func = tamperFunc	        })	       	        table.sort(tamperData, function(a, b)	            return a.Priority < b.Priority	        end)	        TamperedRemotes[remote] = tamperData	    end	end	function RemoteTamperer.BlacklistRemotes(remotes)	    for _, remote in ipairs(remotes) do	        BlacklistedRemotes[remote] = true	    end	end	function RemoteTamperer.UntamperRemotes(remotes)	    for _, remote in ipairs(remotes) do	        TamperedRemotes[remote] = nil	    end	end	function RemoteTamperer.UnblacklistRemotes(remotes)	    for _, remote in ipairs(remotes) do	        BlacklistedRemotes[remote] = nil	    end	end	return RemoteTamperer
+end
+luacompactModules["src/ui/combat.lua"] = function()
+	local function InitDamage(tab)		local box = tab:AddLeftGroupbox("Damage tamper")				ODYSSEY.Data.DamageReflect = false		ODYSSEY.Data.DamageAmp = false		ODYSSEY.Data.DamageAmpValue = 5				box:AddToggle("DamageReflect", {			Text = "Damage reflection",			Default = ODYSSEY.Data.DamageReflect,			Tooltip = "ONLY WORKS AGAINST NPCs",			Callback = function(value)				ODYSSEY.Data.DamageReflect = value			end		})		box:AddToggle("DamageAmp", {			Text = "Damage amplification",			Default = ODYSSEY.Data.DamageAmp,			Tooltip = "Amplifies all your damage",			Callback = function(value)				ODYSSEY.Data.DamageAmp = value			end		})		box:AddSlider("DamageAmpValue", {			Compact = true,			Text = "",			Default = ODYSSEY.Data.DamageAmpValue,			Min = 1,			Max = 100,			Rounding = 1,			Callback = function(value)				ODYSSEY.Data.DamageAmpValue = value			end		})	end	return function(UILib, window)		local tab = window:AddTab("Combat")				InitDamage(tab)	end
 end
 luacompactModules["src/ui/init.lua"] = function()
-	local UILib = load("src/lib/LinoriaLib.lua")	local window = UILib:CreateWindow({		Title = "Tragic Odyssey",		Center = true,		AutoShow = true	})	ODYSSEY.UI = window	ODYSSEY.Maid:GiveTask(function()		UILib:Unload()	end)
+	local UILib = load("src/lib/LinoriaLib.lua")	local window = UILib:CreateWindow({		Title = "Tragic Odyssey",		Center = true,		AutoShow = true	})	ODYSSEY.UI = window	ODYSSEY.Maid:GiveTask(function()		UILib:Unload()	end)	load("src/ui/combat.lua")(UILib, window)
 end
 
 local env = assert(getgenv, "Unsupported exploit")()
@@ -55,6 +61,7 @@ end
 -- services
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 -- modules
 local Maid = load("src/lib/Maid.lua")
@@ -62,6 +69,8 @@ local Maid = load("src/lib/Maid.lua")
 local ODYSSEY = {
     Hooks = {},
     MetaHooks = {},
+	
+	Data = {},
 
     Maid = Maid.new(),
     UI = nil,
@@ -81,105 +90,18 @@ ODYSSEY.Maid:GiveTask(function()
     table.clear(ODYSSEY)
 end)
 
+-- helpers
+function ODYSSEY.GetLocalPlayer()
+	return Players.LocalPlayer
+end
+
+function ODYSSEY.GetLocalCharacter()
+	return ODYSSEY.GetLocalPlayer().Character
+end
+
 -- init
 ODYSSEY.RemoteTamperer = load("src/logic/RemoteTamperer.lua")
--- load("src/ui/init.lua")
+load("src/ui/init.lua")
 
-
--- test
-local rng = Random.new()
-local gameSkillTypes = require(ReplicatedStorage.RS.Modules.Magic.SkillTypes)
-
-local skillTypes = {"Blast Attack", "Explosion", "Beam Attack"}
-local magics = {}
-
-do
-	local types = require(ReplicatedStorage.RS.Modules.Magic).Types
-	for name, magic in types do
-		table.insert(magics, name)
-	end
-end
-
-local function GenerateMagicOptions()
-	local randomMagic = magics[rng:NextInteger(1, #magics)]
-	local randomSkillType = skillTypes[rng:NextInteger(1, #skillTypes)]
-
-	local skillTypeData = gameSkillTypes.Types[randomSkillType]
-	local options = {}
-	local serializedOptions = {}
-
-	for _, optionData in skillTypeData.Options do
-		local option = {
-			Order = optionData.Order,
-			Value = ""
-		}
-		
-		if optionData.Type == "Animation" then
-			option.Value = optionData.Default
-		elseif optionData.Type == "Bool" then
-			option.Value = rng:NextInteger(1, 2) == 1 and true or false
-		elseif optionData.Type == "Int" then
-			option.Value = rng:NextInteger(optionData.MinValue, optionData.MaxValue)
-		elseif optionData.Type == "String" then
-			option.Value = optionData.Options[rng:NextInteger(1, #optionData.Options)]
-		elseif optionData.Type == "Percent" then
-			option.Value = rng:NextInteger(optionData.MinValue, optionData.MaxValue)
-		end
-		
-		table.insert(options, option)
-	end
-
-	table.sort(options, function(a, b)
-		return a.Order < b.Order
-	end)
-
-	for _, option in options do
-		table.insert(serializedOptions, option.Value)
-	end
-
-	table.insert(serializedOptions, 1, randomSkillType)
-	table.insert(serializedOptions, HttpService:GenerateGUID())
-	table.insert(serializedOptions, HttpService:GenerateGUID())
-    
-	return randomMagic, HttpService:JSONEncode(serializedOptions)
-end
-
-
-local char = game:GetService("Players").LocalPlayer.Character
-
-for _, remote in ipairs(ReplicatedStorage.RS.Remotes:GetDescendants()) do
-    local name = remote.name
-
-    if string.match(name, "Take") and string.match(name, "Damage") then
-        ODYSSEY.RemoteTamperer.BlacklistRemotes({remote})
-    end
-
-    if string.match(name, "Deal") and string.match(name, "Damage") then
-        ODYSSEY.RemoteTamperer.TamperRemotes({remote}, 1, function(remote, args)
-            local dealer, receiver = args[1], args[2]
-
-            if receiver == char then
-                args[1] = receiver
-                args[2] = dealer
-            end
-        end)
-
-        ODYSSEY.RemoteTamperer.TamperRemotes({remote}, 2, function(remote, args)
-            local amount = 15 -- or (damage amp amount here)
-            local fireServer = remote.FireServer
-
-            for _ = 1, amount do
-                -- when Elementalist is enabled
-                if remote.Name == "DealAttackDamage" then
-                    local magic, options = GenerateMagicOptions()
-
-                    args[3] = magic
-                    args[4] = "1"
-                    args[5] = options
-                end
-
-                fireServer(remote, table.unpack(args))
-            end
-        end)
-    end
-end
+-- logic
+load("src/logic/damage_tamper.lua")

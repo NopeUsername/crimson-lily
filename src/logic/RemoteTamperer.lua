@@ -19,13 +19,25 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
         end
 
         if TamperedRemotes[self] then
+			local shouldFire = true
+			
+			-- if any tamper funcs return false then it won't
+			-- do a default FireServer
             for _, tamperData in ipairs(TamperedRemotes[self]) do
-                local ok, err = pcall(tamperData.Func, self, args, oldNamecall)
-                if not ok then warn(err) end
+                local ok, data = pcall(tamperData.Func, self, args, oldNamecall)
+                if not ok then warn(data) end
+				
+				if data == false then
+					shouldFire = false
+				end
             end
-
-            local fireServer = self.FireServer
-            return fireServer(self, table.unpack(args))
+			
+			if shouldFire then
+				local fireServer = self.FireServer
+				return fireServer(self, table.unpack(args))
+			else
+				return nil
+			end
         end
     end
 
@@ -36,6 +48,10 @@ ODYSSEY.MetaHooks[oldNamecall] = {
     Object = game,
     Method = "__namecall"
 }
+ODYSSEY.Maid:GiveTask(function()
+	table.clear(TamperedRemotes)
+	table.clear(BlacklistedRemotes)
+end)
 
 -- API
 function RemoteTamperer.TamperRemotes(remotes, priority, tamperFunc)
