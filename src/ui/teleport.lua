@@ -31,12 +31,13 @@ local function InitPlaces(tab)
 				
 				if not character then return end
 				
-				ODYSSEY.SendNotification({Text = "The place might take a while to load, please wait."})
 				character:SetPrimaryPartCFrame(center.CFrame)
 				task.wait(0.3)
 				character.PrimaryPart.Anchored = true
 				
 				if not place:FindFirstChild("AboveWater") then
+					ODYSSEY.SendNotification(nil, "Tragic Odyssey", "The destination may take a while to load, please wait.", Color3.new(1, 1, 1))
+					
 					while not place:FindFirstChild("Fragmentable") do
 						place.ChildAdded:Wait()
 					end
