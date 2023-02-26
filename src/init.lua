@@ -57,8 +57,6 @@ do
 	local upvalues = getupvalues(getconnections(rem.OnClientEvent)[1].Function)[1]
 	local notifFunc = upvalues.Notification
 	
-	table.foreach(upvalues, print)
-	
 	ODYSSEY.SendNotification = notifFunc
 end
 
