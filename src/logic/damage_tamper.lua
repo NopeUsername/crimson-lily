@@ -14,6 +14,10 @@ for _, remote in ipairs(ReplicatedStorage.RS.Remotes:GetDescendants()) do
 	if string.match(name, "Deal") and string.match(name, "Damage") then
 		table.insert(toIntercept, remote)
 	end
+	
+	if name == "TouchDamage" then
+		table.insert(toBlacklist, remote)
+	end
 end
 
 
