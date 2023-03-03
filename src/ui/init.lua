@@ -1,13 +1,10 @@
-local UILib = load("src/lib/LinoriaLib.lua")
+local UILib = load("src/lib/xsxLib.lua")
+UILib.title = "The Crimson Lily"
 
-local window = UILib:CreateWindow({
-	Title = "Tragic Odyssey",
-	Center = true,
-	AutoShow = true
-})
-ODYSSEY.UI = window
+local window = UILib:Init()
+
 ODYSSEY.Maid:GiveTask(function()
-	UILib:Unload()
+	window:Remove()
 end)
 
 load("src/ui/combat.lua")(UILib, window)

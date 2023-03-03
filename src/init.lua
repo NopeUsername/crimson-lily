@@ -20,7 +20,6 @@ local ODYSSEY = {
 	Data = {},
 
     Maid = Maid.new(),
-    UI = nil,
 }
 env.ODYSSEY = ODYSSEY
 
@@ -62,8 +61,10 @@ end
 
 -- init
 ODYSSEY.RemoteTamperer = load("src/logic/RemoteTamperer.lua")
-load("src/ui/init.lua")
 
 -- logic
 load("src/logic/damage_tamper.lua")
 load("src/logic/combat_other.lua")
+load("src/logic/teleports.lua")
+
+load("src/ui/init.lua")
