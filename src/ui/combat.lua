@@ -25,7 +25,7 @@ local function InitOther(tab)
 	ODYSSEY.Data.NoStamina = true
 
 	tab:NewSection("Miscellaneous")
-	tab:NewToggle("No dash stamina", ODYSSEY.Data.NoStamina, function()
+	tab:NewToggle("No dash stamina", ODYSSEY.Data.NoStamina, function(value)
 		ODYSSEY.Data.NoStamina = value
 	end)
 end
