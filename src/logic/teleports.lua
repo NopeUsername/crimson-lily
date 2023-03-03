@@ -116,5 +116,3 @@ function Teleports.TeleportToRegion(place)
 
 	character.HumanoidRootPart.Anchored = false
 end
-
-return function() end

@@ -9,3 +9,4 @@ end)
 
 load("src/ui/combat.lua")(UILib, window)
 load("src/ui/teleport.lua")(UILib, window)
+load("src/ui/trackers.lua")(UILib, window)
