@@ -18,10 +18,6 @@ local ODYSSEY = {
     MetaHooks = {},
 	
 	Data = {},
-    Methods = {
-        gethui = gethui or get_hidden_ui
-    },
-
     Maid = Maid.new(),
 }
 env.ODYSSEY = ODYSSEY

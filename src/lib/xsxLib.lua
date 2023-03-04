@@ -877,8 +877,15 @@ function library:Init(key)
     local containerGradient = Instance.new("UIGradient")
 
     screen.Name = "screen"
-    screen.Parent = ODYSSEY.Methods.gethui()
     screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    if get_hidden_ui or gethui then
+        screen.Parent = (get_hidden_ui or gethui)()
+    else
+        if syn and syn.protect_gui then
+            syn.protect_gui(screen)
+        end
+    end
 
     edge.Name = "edge"
     edge.Parent = screen
