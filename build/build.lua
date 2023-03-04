@@ -40,7 +40,7 @@ which="synapse"
 elseif (gethui) then
 which="krnl"
 end
-return (if which=="krnl" then gethui() else game:GetService("CoreGui"))
+return (which=="krnl" and gethui() or game:GetService("CoreGui"))
 end
 
 luacompactModules["src/lib/ESP.lua"] = function()
@@ -4701,7 +4701,7 @@ ODYSSEY.Maid:GiveTask(function()
     end
 
     for original, hookData in pairs(ODYSSEY.MetaHooks) do
-        hookmetamethod(hookData.Object, hookData.Method, newcclosure(original))
+        hookmetamethod(hookData.Object, hookData.Method, original)
     end
 
     table.clear(ODYSSEY)
