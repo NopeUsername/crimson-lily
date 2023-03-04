@@ -884,6 +884,7 @@ function library:Init(key)
     else
         if syn and syn.protect_gui then
             syn.protect_gui(screen)
+            screen.Parent = game:GetService("CoreGui")
         end
     end
 
