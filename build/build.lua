@@ -32,6 +32,17 @@ function import(dir)
 	return "Invalid file path."
 end
 
+function GetHiddenUi(ui)
+local which
+if (syn and syn.protect_gui) then
+syn.protect_gui(ui)
+which="synapse"
+elseif (gethui) then
+which="krnl"
+end
+return (if which=="krnl" then gethui() else game:GetService("CoreGui"))
+end
+
 luacompactModules["src/lib/ESP.lua"] = function()
 	--Settings--
 	local ESP = {
@@ -1523,7 +1534,7 @@ luacompactModules["src/lib/xsxLib.lua"] = function()
 	    local containerGradient = Instance.new("UIGradient")
 
 	    screen.Name = "screen"
-	    screen.Parent = gethui()
+	    screen.Parent = GetHiddenUi(screen)
 	    screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 	    edge.Name = "edge"
