@@ -5,8 +5,6 @@ if env.ODYSSEY then
     env.ODYSSEY = nil
 end
 
-env.gethui = gethui or get_hidden_ui
-
 -- services
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,6 +18,9 @@ local ODYSSEY = {
     MetaHooks = {},
 	
 	Data = {},
+    Methods = {
+        gethui = gethui or get_hidden_ui
+    },
 
     Maid = Maid.new(),
 }

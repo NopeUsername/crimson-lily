@@ -877,7 +877,7 @@ function library:Init(key)
     local containerGradient = Instance.new("UIGradient")
 
     screen.Name = "screen"
-    screen.Parent = gethui()
+    screen.Parent = ODYSSEY.Methods.gethui()
     screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     edge.Name = "edge"

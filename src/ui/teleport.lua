@@ -21,6 +21,7 @@ end
 
 return function(UILib, window)
 	local tab = window:NewTab("Teleport")
+	tab:NewLabel('<b>DO NOT TELEPORT WHILE HOLDING BRONZE SEALED CHESTS. DO NOT TELEPORT WHILE HOLDING BRONZE SEALED CHESTS</b>')
 	
 	InitPlaces(tab)
 end
