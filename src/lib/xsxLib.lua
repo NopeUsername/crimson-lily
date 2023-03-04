@@ -37,6 +37,17 @@ local CreateTween = function(name, speed, style, direction, loop, reverse, delay
     TweenTable[name] = TweenInfo.new(speed, style, direction, loop, reverse, delay)
 end
 
+function GetHiddenUi(ui)
+	local which
+	if get_hidden_ui or gethui then
+		which=gethui()
+	elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
+		syn.protect_gui(ui)
+		which=syn.protect_gui
+	end
+	return which
+end
+
 -- / Dragging
 local drag = function(obj, latency)
     obj = obj
@@ -877,7 +888,7 @@ function library:Init(key)
     local containerGradient = Instance.new("UIGradient")
 
     screen.Name = "screen"
-    screen.Parent = gethui()
+    screen.Parent = GetHiddenUi(screen)
     screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     edge.Name = "edge"
