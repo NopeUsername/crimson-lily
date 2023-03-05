@@ -45,11 +45,6 @@ function ODYSSEY.GetLocalCharacter()
 	return ODYSSEY.GetLocalPlayer().Character
 end
 
-function ODYSSEY.SendNotification(config)
-	config.Title = "Tragic Odyssey - Notification"
-	game:GetService("StarterGui"):SetCore("SendNotification", config)
-end
-
 do
 	local rem = ReplicatedStorage.RS.Remotes.UI.Notification
 	local upvalues = getupvalues(getconnections(rem.OnClientEvent)[1].Function)[1]

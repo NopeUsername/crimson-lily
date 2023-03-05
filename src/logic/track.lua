@@ -8,7 +8,7 @@ local ESP = load("src/lib/ESP.lua")
 ESP.Enabled = true
 
 ODYSSEY.Maid:GiveTask(function()
-    for _, object in ipairs(ESP.Objects) do
+    for _, object in pairs(ESP.Objects) do
         object:Remove()
     end
 end)

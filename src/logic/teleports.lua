@@ -6,56 +6,27 @@ local UnloadedIslands = ReplicatedStorage.RS.UnloadIslands
 local Teleports = {}
 ODYSSEY.Data.Teleports = Teleports
 
-function FindHighestPart(parts)
-	local highest = -9e9
-	local point = Vector3.new()
-
-	for _, v in ipairs(parts) do
-		if not v:IsA("BasePart") then continue end
-		if v.Position.Y > highest then
-			highest = v.Position.Y
-			point = v.Position
-		end
-	end
-
-	return point
-end
-
-function GetRegionDescendants(regionName, overrideModel, overrideUnload)
-	local children = {}
-	local regionModel = workspace.Map:FindFirstChild(regionName)
-	local unloadedModel = UnloadedIslands:FindFirstChild(regionName)
-
-	if overrideModel then
-		regionModel = overrideModel
-		unloadedModel = overrideUnload
-	end
-
-	for _, v in ipairs(regionModel:GetDescendants()) do
-		table.insert(children, v)
-	end
-
-	if unloadedModel then
-		for _, v in ipairs(unloadedModel:GetDescendants()) do
-			if table.find(children, v) then continue end
-			table.insert(children, v)
-		end
-	end
-
-	return children
-end
-
 function Teleports.GetRegions()
 	local regions = {}
 
 	--
 	for regionName, regionData in pairs(Locations.Regions) do
-		local regionDescs = GetRegionDescendants(regionName)
 		local copy = table.clone(regionData)
 		local areas = {}
-
-		copy.HighestPoint = FindHighestPart(regionDescs)
 		copy.Name = regionName
+
+		--
+		local regionModel = workspace.Map:FindFirstChild(regionName)
+		local unloadedModel = UnloadedIslands:FindFirstChild(regionName)
+
+		local regionDescs = regionModel:GetDescendants()
+
+		if unloadedModel then
+			for _, v in ipairs(unloadedModel:GetDescendants()) do
+				table.insert(regionDescs, v)
+			end
+		end
+		--
 
 		-- areas
 		if regionData.Areas then
@@ -64,22 +35,28 @@ function Teleports.GetRegions()
 				areaCopy.Name = areaName
 				areaCopy.Region = copy
 	
-				if areaData.Center then
-					-- 1: areas with a defined Center
-					areaCopy.HighestPoint = areaData.Center + Vector3.new(0, 50, 0)
-				else
-					-- 2: areas with no Center, but detected through Raycast
+				if not areaData.Center then
+					-- area has no Center, but detected through raycast
 					for _, v in ipairs(regionDescs) do
 						if v:IsA("StringValue") and v.Name == "DisplayName" and v.Value == areaName then
-							areaCopy.HighestPoint = FindHighestPart(v.Parent:GetDescendants())
+							local possiblePart1 = regionModel:FindFirstChildWhichIsA("BasePart", true)
+							local possiblePart2 = possiblePart1
+
+							if unloadedModel then
+								possiblePart2 = unloadedModel:FindFirstChildWhichIsA("BasePart", true)
+							end
+							
+							areaCopy.Center = (possiblePart1 and possiblePart1.Position) or (possiblePart2 and possiblePart2.Position)
+							areaCopy.Model = v.Parent
 							break
 						end
 					end
 				end
 
-				if not areaCopy.HighestPoint then
-					-- failsafe
-					areaCopy.HighestPoint = copy.HighestPoint
+				-- gah
+				if not areaCopy.Center then
+					areaCopy.Center = copy.Center
+					areaCopy.Model = regionModel
 				end
 
 				table.insert(areas, areaCopy)
@@ -105,14 +82,54 @@ function Teleports.TeleportToRegion(place)
 	local region = (place.Region and place.Region.Name) or place.Name
 	local regionModel = workspace.Map:FindFirstChild(region)
 
-	character:SetPrimaryPartCFrame(CFrame.new(place.HighestPoint))
+	character:SetPrimaryPartCFrame(CFrame.new(place.Center))
 	task.wait(0.15)
-	character.HumanoidRootPart.Anchored = true
 
-	ODYSSEY.SendNotification(nil, "Tragic Odyssey", "The destination may take a while to load, please wait.", Color3.new(1, 1, 1))
+	character.HumanoidRootPart.Anchored = true
+	ODYSSEY.SendNotification(nil, "Crimson Lily", "The destination may take a while to load, please wait.", Color3.new(1, 1, 1))
+
 	while not regionModel:FindFirstChild("Fragmentable") do
 		regionModel.ChildAdded:Wait()
 	end
 
+	
+
+	--------------------------------------------------------
+	local params = OverlapParams.new()
+	params.FilterDescendantsInstances = {regionModel}
+	params.FilterType = Enum.RaycastFilterType.Include
+
+	local searchSize = Vector3.new(500, 800, 500)
+	if place.Model then
+		-- an Area
+		_, searchSize = place.Model:GetBoundingBox()
+		searchSize -= Vector3.new(15, 15, 15)
+
+		params.FilterDescendantsInstances = {place.Model}
+	end
+
+	local parts = workspace:GetPartBoundsInBox(
+		CFrame.new(place.Center),
+		searchSize,
+		params
+	)
+	local hit, highestY = nil, -9e9
+
+	for _, candidate in ipairs(parts) do
+		if candidate.CanCollide == false then continue end
+		if candidate.Position.Y > highestY then
+			highestY = candidate.Position.Y
+			hit = candidate
+		end
+	end
+
+	if not hit then
+		ODYSSEY.SendNotification(nil, "Crimson Lily", "Failed to find an appropriate teleport destination.", Color3.new(1, 0, 0))
+		character.HumanoidRootPart.Anchored = false
+
+		return
+	end
+
+	character:SetPrimaryPartCFrame(hit.CFrame)
 	character.HumanoidRootPart.Anchored = false
 end

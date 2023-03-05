@@ -13,7 +13,7 @@ local function InitNavyInfluence(tab)
     end
 
     update()
-    navyInfluence.Changed:Connect(update)
+    ODYSSEY.Maid:GiveTask(navyInfluence.Changed:Connect(update))
 end
 
 return function(UILib, window)
