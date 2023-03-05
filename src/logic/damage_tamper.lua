@@ -16,44 +16,52 @@ for _, remote in ipairs(ReplicatedStorage.RS.Remotes:GetDescendants()) do
 	end
 	
 	if name == "TouchDamage" then
-		table.insert(toBlacklist, remote)
+		table.insert(toIntercept, remote)
 	end
 end
 
 
 RemoteTamperer.TamperRemotes(toBlacklist, 99, function(remote, args, oldNamecall)
-	if ODYSSEY.Data.DamageReflect then
+	if ODYSSEY.Data.DamageReflect or ODYSSEY.Data.DamageNull then
 		return false
 	end
 end)
 
 RemoteTamperer.TamperRemotes(toIntercept, 1, function(remote, args, oldNamecall)
-	if ODYSSEY.Data.DamageReflect then
-		-- idk why vetex loves putting random ass vars in remotes
-		local modelTypes = {}
-		for idx, arg in pairs(args) do
-			if typeof(arg) == "Instance" and arg:IsA("Model") then
-				table.insert(modelTypes, {Index = idx, Value = arg})
-			end
+	-- idk why vetex loves putting random ass vars in remotes
+	local modelTypes = {}
+	for idx, arg in pairs(args) do
+		if typeof(arg) == "Instance" and arg:IsA("Model") then
+			table.insert(modelTypes, {Index = idx, Value = arg})
 		end
-		
-		local dealer, receiver = modelTypes[1], modelTypes[2]
-		
+	end
+
+	local dealer, receiver = modelTypes[1], modelTypes[2]
+
+	-- damage reflect
+	if ODYSSEY.Data.DamageReflect then
 		if receiver.Value == ODYSSEY.GetLocalCharacter() then
 			args[dealer.Index] = receiver.Value
 			args[receiver.Index] = dealer.Value
 		end
+	else
+		-- only nullify if we are being attacked
+		if ODYSSEY.Data.DamageNull and args[dealer.Index] ~= ODYSSEY.GetLocalCharacter() then
+			return false
+		end
 	end
-end)
 
-RemoteTamperer.TamperRemotes(toIntercept, 2, function(remote, args, oldNamecall)
+	-- damage amp
 	if ODYSSEY.Data.DamageAmp then
 		local amount = ODYSSEY.Data.DamageAmpValue
 		local fireServer = remote.FireServer
+
+		if args[dealer.Index] ~= ODYSSEY.GetLocalCharacter() then
+			amount = 1 -- don't amp if we are being attacked
+		end
 		
 		for _ = 1, amount do
 			-- TODO: Elementalist
-			
 			fireServer(remote, table.unpack(args))
 		end
 		
