@@ -29,7 +29,7 @@ function KillModel(model)
                     remot:FireServer(0, ODYSSEY.GetLocalCharacter(), model, WEAPON, "Impaling Strike", "")
                 end
 
-                task.wait(2)
+                task.wait(5)
             end
 
             KILLING[model] = nil
