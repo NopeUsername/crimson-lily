@@ -10,30 +10,18 @@ local WEAPON = HttpService:JSONEncode({
     Name = "Triasta of Bronze",
     Level = 120
 })
-local KILLING = {}
 
 function KillModel(model)
     local humanoid = model:FindFirstChildOfClass("Humanoid")
     local hrp = model:FindFirstChild("HumanoidRootPart")
 
-    if KILLING[model] then return end
     if not humanoid or not hrp then return end
     if humanoid.Health <= 0 then return end
 
     if ODYSSEY.GetLocalPlayer():DistanceFromCharacter(hrp.Position) <= ODYSSEY.Data.KillauraRadius then
-        task.spawn(function()
-            KILLING[model] = true
-
-            while humanoid.Health > 0 do
-                for _ = 1, 10 do
-                    remot:FireServer(0, ODYSSEY.GetLocalCharacter(), model, WEAPON, "Impaling Strike", "")
-                end
-
-                task.wait(5)
-            end
-
-            KILLING[model] = nil
-        end)           
+        for _ = 1, 10 do
+            remot:FireServer(0, ODYSSEY.GetLocalCharacter(), model, WEAPON, "Impaling Strike", "")
+        end
     end
 end
 
@@ -57,7 +45,7 @@ end)
 
 task.spawn(function()
     while not cancelled do
-        task.wait(1)
+        task.wait(2)
     
         if ODYSSEY.Data.KillauraActive then
             Killaura.KillOnce()
