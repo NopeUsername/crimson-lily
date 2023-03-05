@@ -10,59 +10,42 @@ local WEAPON = HttpService:JSONEncode({
     Name = "Triasta of Bronze",
     Level = 120
 })
-
 local KILLING = {}
-function Killaura.KillOnce()
-    for _, enemy in ipairs(workspace.Enemies:GetChildren()) do
-        local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-        local hrp = enemy:FindFirstChild("HumanoidRootPart")
 
-        if KILLING[enemy] then continue end
-        if not humanoid or not hrp then continue end
-        if humanoid.Health <= 0 then continue end
+function KillModel(model)
+    local humanoid = model:FindFirstChildOfClass("Humanoid")
+    local hrp = model:FindFirstChild("HumanoidRootPart")
 
-        if ODYSSEY.GetLocalPlayer():DistanceFromCharacter(hrp.Position) <= ODYSSEY.Data.KillauraRadius then
-            task.spawn(function()
-                KILLING[enemy] = true
+    if KILLING[model] then continue end
+    if not humanoid or not hrp then continue end
+    if humanoid.Health <= 0 then continue end
 
-                while humanoid.Health > 0 do
-                    for _ = 1, 10 do
-                        remot:FireServer(0, ODYSSEY.GetLocalCharacter(), enemy, WEAPON, "Impaling Strike", "")
-                    end
+    if ODYSSEY.GetLocalPlayer():DistanceFromCharacter(hrp.Position) <= ODYSSEY.Data.KillauraRadius then
+        task.spawn(function()
+            KILLING[model] = true
 
-                    task.wait(2)
+            while humanoid.Health > 0 do
+                for _ = 1, 10 do
+                    remot:FireServer(0, ODYSSEY.GetLocalCharacter(), model, WEAPON, "Impaling Strike", "")
                 end
 
-                KILLING[enemy] = nil
-            end)           
-        end
+                task.wait(2)
+            end
+
+            KILLING[model] = nil
+        end)           
+    end
+end
+
+function Killaura.KillOnce()
+    for _, enemy in ipairs(workspace.Enemies:GetChildren()) do
+        KillModel(enemy)
     end
 
     if ODYSSEY.Data.KillPlayers then
         for _, player in ipairs(Players:GetPlayers()) do
-            local enemy = player.Character
-            local humanoid = enemy:FindFirstChildOfClass("Humanoid")
-            local hrp = enemy:FindFirstChild("HumanoidRootPart")
-    
-            if KILLING[enemy] then continue end
-            if not humanoid or not hrp then continue end
-            if humanoid.Health <= 0 then continue end
-    
-            if ODYSSEY.GetLocalPlayer():DistanceFromCharacter(hrp.Position) <= ODYSSEY.Data.KillauraRadius then
-                task.spawn(function()
-                    KILLING[enemy] = true
-    
-                    while humanoid.Health > 0 do
-                        for _ = 1, 10 do
-                            remot:FireServer(0, ODYSSEY.GetLocalCharacter(), enemy, WEAPON, "Impaling Strike", "")
-                        end
-    
-                        task.wait(2)
-                    end
-    
-                    KILLING[enemy] = nil
-                end)           
-            end
+            if player == ODYSSEY.GetLocalPlayer() then continue end
+            KillModel(player.Character)
         end
     end
 end
