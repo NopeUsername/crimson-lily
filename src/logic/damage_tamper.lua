@@ -16,7 +16,7 @@ for _, remote in ipairs(ReplicatedStorage.RS.Remotes:GetDescendants()) do
 	end
 	
 	if name == "TouchDamage" then
-		table.insert(toIntercept, remote)
+		table.insert(toBlacklist, remote)
 	end
 end
 

@@ -21,6 +21,23 @@ local function InitDamage(tab)
 	end)
 end
 
+local function InitKillaura(tab)
+	ODYSSEY.Data.KillauraActive = false
+	ODYSSEY.Data.KillauraRadius = 100
+
+	tab:NewSection("Killaura")
+	tab:NewSlider("Radius", "m", true, "/", {min = 1, max = 300, default = ODYSSEY.Data.KillauraRadius}, function(value)
+		ODYSSEY.Data.KillauraRadius = value
+	end)
+	tab:NewToggle("Killaura", ODYSSEY.Data.KillauraActive, function(value)
+		ODYSSEY.Data.KillauraActive = value
+	end)
+	tab:NewButton("Kill once", function()
+		table.foreach(ODYSSEY.Data, print)
+		ODYSSEY.Data.Killaura.KillOnce()
+	end)
+end
+
 local function InitOther(tab)
 	ODYSSEY.Data.NoStamina = true
 
@@ -34,5 +51,6 @@ return function(UILib, window)
 	local tab = window:NewTab("Combat")
 	
 	InitDamage(tab)
+	InitKillaura(tab)
 	InitOther(tab)
 end

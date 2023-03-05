@@ -61,5 +61,6 @@ load("src/logic/damage_tamper.lua")
 load("src/logic/combat_other.lua")
 load("src/logic/teleports.lua")
 load("src/logic/track.lua")
+load("src/logic/killaura.lua")
 
 load("src/ui/init.lua")
