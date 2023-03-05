@@ -23,6 +23,7 @@ end
 
 local function InitKillaura(tab)
 	ODYSSEY.Data.KillauraActive = false
+	ODYSSEY.Data.KillPlayers = false
 	ODYSSEY.Data.KillauraRadius = 100
 
 	tab:NewSection("Killaura")
@@ -32,8 +33,10 @@ local function InitKillaura(tab)
 	tab:NewToggle("Killaura", ODYSSEY.Data.KillauraActive, function(value)
 		ODYSSEY.Data.KillauraActive = value
 	end)
+	tab:NewToggle("Kill players", ODYSSEY.Data.KillPlayers, function(value)
+		ODYSSEY.Data.KillPlayers = value
+	end)
 	tab:NewButton("Kill once", function()
-		table.foreach(ODYSSEY.Data, print)
 		ODYSSEY.Data.Killaura.KillOnce()
 	end)
 end
