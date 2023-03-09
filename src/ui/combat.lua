@@ -43,10 +43,15 @@ end
 
 local function InitOther(tab)
 	ODYSSEY.Data.NoStamina = true
+	ODYSSEY.Data.BreakAI = true
 
 	tab:NewSection("Miscellaneous")
 	tab:NewToggle("No dash stamina", ODYSSEY.Data.NoStamina, function(value)
 		ODYSSEY.Data.NoStamina = value
+	end)
+
+	tab:NewToggle("Break AI targeting", ODYSSEY.Data.BreakAI, function(value)
+		ODYSSEY.Data.BreakAI = value
 	end)
 end
 

@@ -21,13 +21,13 @@ for _, remote in ipairs(ReplicatedStorage.RS.Remotes:GetDescendants()) do
 end
 
 
-RemoteTamperer.TamperRemotes(toBlacklist, 99, function(remote, args, oldNamecall)
+RemoteTamperer.TamperRemotes(toBlacklist, function(remote, args, oldNamecall)
 	if ODYSSEY.Data.DamageReflect or ODYSSEY.Data.DamageNull then
 		return false
 	end
 end)
 
-RemoteTamperer.TamperRemotes(toIntercept, 1, function(remote, args, oldNamecall)
+RemoteTamperer.TamperRemotes(toIntercept, function(remote, args, oldNamecall)
 	-- idk why vetex loves putting random ass vars in remotes
 	local modelTypes = {}
 	for idx, arg in pairs(args) do
@@ -64,7 +64,7 @@ RemoteTamperer.TamperRemotes(toIntercept, 1, function(remote, args, oldNamecall)
 			-- TODO: Elementalist
 			fireServer(remote, table.unpack(args))
 		end
-		
+
 		return false
 	end
 end)

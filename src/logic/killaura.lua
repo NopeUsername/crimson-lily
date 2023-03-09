@@ -7,9 +7,10 @@ local Players = game:GetService("Players")
 local remot = game:GetService("ReplicatedStorage").RS.Remotes.Combat.DealWeaponDamage
 
 local WEAPON = HttpService:JSONEncode({
-    Name = "Triasta of Bronze",
+    Name = "Commodore Kai's Sabre",
     Level = 120
 })
+local ATTACK = "Flying Slash"
 
 function KillModel(model)
     local humanoid = model:FindFirstChildOfClass("Humanoid")
@@ -20,7 +21,7 @@ function KillModel(model)
 
     if ODYSSEY.GetLocalPlayer():DistanceFromCharacter(hrp.Position) <= ODYSSEY.Data.KillauraRadius then
         for _ = 1, 10 do
-            remot:FireServer(0, ODYSSEY.GetLocalCharacter(), model, WEAPON, "Impaling Strike", "")
+            remot:FireServer(0, ODYSSEY.GetLocalCharacter(), model, WEAPON, ATTACK, "")
         end
     end
 end

@@ -54,7 +54,7 @@ do
 end
 
 -- init
-ODYSSEY.RemoteTamperer = load("src/logic/RemoteTamperer.lua")
+ODYSSEY.RemoteTamperer = load("src/logic/remote_tamper.lua")
 
 -- logic
 load("src/logic/damage_tamper.lua")
