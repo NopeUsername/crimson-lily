@@ -70,10 +70,13 @@ end
 ODYSSEY.RemoteTamperer = load("src/logic/remote_tamper.lua")
 
 -- logic
-load("src/logic/damage_tamper.lua")
-load("src/logic/combat_other.lua")
-load("src/logic/teleports.lua")
-load("src/logic/track.lua")
-load("src/logic/killaura.lua")
+if game.PlaceId ~= 3272915504 then
+    load("src/logic/damage_tamper.lua")
+    load("src/logic/combat_other.lua")
+    load("src/logic/teleports.lua")
+    load("src/logic/track.lua")
+    load("src/logic/killaura.lua")
+end
 
+load("src/logic/gameplay.lua")
 load("src/ui/init.lua")

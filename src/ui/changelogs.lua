@@ -18,7 +18,8 @@ return {
     {
         Date = "10/3/2023",
         Entries = {
-            "Improved teleporting fr"
+            "Improved teleporting fr",
+            "Added some banger shits"
         }
     }
 }

@@ -7,7 +7,12 @@ ODYSSEY.Maid:GiveTask(function()
 	window:Remove()
 end)
 
-load("src/ui/combat.lua")(UILib, window)
-load("src/ui/teleport.lua")(UILib, window)
-load("src/ui/trackers.lua")(UILib, window)
+
+if game.PlaceId ~= 3272915504 then
+	load("src/ui/combat.lua")(UILib, window)
+	load("src/ui/teleport.lua")(UILib, window)
+	load("src/ui/trackers.lua")(UILib, window)
+end
+
+load("src/ui/gameplay.lua")(UILib, window)
 load("src/ui/info.lua")(UILib, window)
