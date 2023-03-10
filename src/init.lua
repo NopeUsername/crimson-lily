@@ -53,6 +53,19 @@ do
 	ODYSSEY.SendNotification = notifFunc
 end
 
+do
+    local LoadArea
+    for index, connection in next, getconnections(ReplicatedStorage.RS.Remotes:WaitForChild("Misc").OnTeleport.OnClientEvent) do
+        local env = connection.Function and getfenv(connection.Function)
+        if env and tostring(rawget(env, "script")) == "Unloading" then
+            LoadArea = debug.getupvalue(connection.Function, 2)
+            break
+        end
+    end
+
+    ODYSSEY.LoadArea = LoadArea
+end
+
 -- init
 ODYSSEY.RemoteTamperer = load("src/logic/remote_tamper.lua")
 

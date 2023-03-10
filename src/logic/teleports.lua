@@ -82,54 +82,39 @@ function Teleports.TeleportToRegion(place)
 	local region = (place.Region and place.Region.Name) or place.Name
 	local regionModel = workspace.Map:FindFirstChild(region)
 
-	character:SetPrimaryPartCFrame(CFrame.new(place.Center))
-	task.wait(0.15)
-
+	ODYSSEY.LoadArea(regionModel.Center.Position, false)
 	character.HumanoidRootPart.Anchored = true
-	ODYSSEY.SendNotification(nil, "Crimson Lily", "The destination may take a while to load, please wait.", Color3.new(1, 1, 1))
-
+	
+	task.wait(0.15)
 	while not regionModel:FindFirstChild("Fragmentable") do
 		regionModel.ChildAdded:Wait()
 	end
 
-	
-
 	--------------------------------------------------------
-	local params = OverlapParams.new()
-	params.FilterDescendantsInstances = {regionModel}
-	params.FilterType = Enum.RaycastFilterType.Include
+	local model = place.Model or regionModel
 
-	local searchSize = Vector3.new(500, 800, 500)
-	if place.Model then
-		-- an Area
-		_, searchSize = place.Model:GetBoundingBox()
-		searchSize -= Vector3.new(15, 15, 15)
+	local destinationPart = nil
+	local highestY = -9e9
 
-		params.FilterDescendantsInstances = {place.Model}
-	end
+	local finalPos = nil
 
-	local parts = workspace:GetPartBoundsInBox(
-		CFrame.new(place.Center),
-		searchSize,
-		params
-	)
-	local hit, highestY = nil, -9e9
+	for _, v in ipairs(model:GetDescendants()) do
+		if not v:IsA("BasePart") then continue end
 
-	for _, candidate in ipairs(parts) do
-		if candidate.CanCollide == false then continue end
-		if candidate.Position.Y > highestY then
-			highestY = candidate.Position.Y
-			hit = candidate
+		if v.Position.Y + v.Size.Y/2 > highestY then
+			highestY = v.Position.Y + v.Size.Y/2
+			destinationPart = v
 		end
 	end
 
-	if not hit then
+
+	if destinationPart then
+		finalPos = destinationPart.Position
+	else
+		finalPos = regionModel.Center.Position
 		ODYSSEY.SendNotification(nil, "Crimson Lily", "Failed to find an appropriate teleport destination.", Color3.new(1, 0, 0))
-		character.HumanoidRootPart.Anchored = false
-
-		return
 	end
-
-	character:SetPrimaryPartCFrame(hit.CFrame)
+	
+	character:SetPrimaryPartCFrame(CFrame.new(finalPos))
 	character.HumanoidRootPart.Anchored = false
 end
