@@ -18,7 +18,7 @@ function Gameplay.ServerHop()
 
     table.sort(data, function(a, b)
         if not a.playing or not b.playing then return false end
-        return a.playing > b.playing
+        return a.playing < b.playing
     end)
     if not data[1] then
         ODYSSEY.SendNotification(nil, "Crimson Lily", "Couldn't find any server.", Color3.new(1, 0, 0))
