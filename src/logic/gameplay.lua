@@ -78,9 +78,12 @@ function Gameplay.Rejoin()
     )
 end
 
+
+Gameplay.PauseForceLoad = false
 ODYSSEY.Timer(1, function()
     if not ODYSSEY.Data.ForceLoad then return end
-    
+    if Gameplay.PauseForceLoad then return end
+
     local hrp = ODYSSEY.GetLocalCharacter().HumanoidRootPart
     ODYSSEY.LoadArea(hrp.Position, false)
 end)

@@ -82,6 +82,7 @@ function Teleports.TeleportToRegion(place)
 	local region = (place.Region and place.Region.Name) or place.Name
 	local regionModel = workspace.Map:FindFirstChild(region)
 
+	ODYSSEY.Gameplay.PauseForceLoad = true
 	ODYSSEY.LoadArea(regionModel.Center.Position, false)
 	character.HumanoidRootPart.Anchored = true
 	
@@ -108,15 +109,19 @@ function Teleports.TeleportToRegion(place)
 		end
 	end
 
-
 	if destinationPart then
-		finalPos = destinationPart.Position
+		finalPos = Vector3.new(
+			destinationPart.Position.X,
+			highestY,
+			destinationPart.Position.Z
+		)
 	else
 		finalPos = regionModel.Center.Position
 		ODYSSEY.SendNotification(nil, "Crimson Lily", "Failed to find an appropriate teleport destination.", Color3.new(1, 0, 0))
 	end
 	
 	character:SetPrimaryPartCFrame(CFrame.new(finalPos))
+	ODYSSEY.Gameplay.PauseForceLoad = false
 	character.HumanoidRootPart.Anchored = false
 end
 
