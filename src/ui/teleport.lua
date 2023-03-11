@@ -1,7 +1,7 @@
-local Teleports = ODYSSEY.Data.Teleports
+local Teleports = ODYSSEY.Teleports
 
 local function InitPlaces(tab)
-	local regions = Teleports.GetRegions()
+	local regions = Teleports.Regions
 
 	for _, placeData in ipairs(regions) do
 		tab:NewSection(placeData.Name)

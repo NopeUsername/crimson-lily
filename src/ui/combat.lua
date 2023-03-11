@@ -1,8 +1,8 @@
 local function InitDamage(tab)
-	ODYSSEY.Data.DamageReflect = false
-	ODYSSEY.Data.DamageNull = true
-	ODYSSEY.Data.DamageAmp = false
-	ODYSSEY.Data.DamageAmpValue = 5
+	ODYSSEY.InitData("DamageReflect", false)
+	ODYSSEY.InitData("DamageNull", true)
+	ODYSSEY.InitData("DamageAmp", false)
+	ODYSSEY.InitData("DamageAmpValue", 5)
 	
 	tab:NewSection("Damage tamper")
 	tab:NewLabel("All the damage tampers only work against NPCs", "left")
@@ -22,9 +22,9 @@ local function InitDamage(tab)
 end
 
 local function InitKillaura(tab)
-	ODYSSEY.Data.KillauraActive = false
-	ODYSSEY.Data.KillPlayers = false
-	ODYSSEY.Data.KillauraRadius = 100
+	ODYSSEY.InitData("KillauraActive", false)
+	ODYSSEY.InitData("KillPlayers", false)
+	ODYSSEY.InitData("KillauraRadius", 100)
 
 	tab:NewSection("Killaura")
 	tab:NewSlider("Radius", "m", true, "/", {min = 1, max = 300, default = ODYSSEY.Data.KillauraRadius}, function(value)
@@ -37,13 +37,13 @@ local function InitKillaura(tab)
 		ODYSSEY.Data.KillPlayers = value
 	end)
 	tab:NewButton("Kill once", function()
-		ODYSSEY.Data.Killaura.KillOnce()
+		ODYSSEY.Killaura.KillOnce()
 	end)
 end
 
 local function InitOther(tab)
-	ODYSSEY.Data.NoStamina = true
-	ODYSSEY.Data.BreakAI = true
+	ODYSSEY.InitData("NoStamina", true)
+	ODYSSEY.InitData("BreakAI", true)
 
 	tab:NewSection("Miscellaneous")
 	tab:NewToggle("No dash stamina", ODYSSEY.Data.NoStamina, function(value)

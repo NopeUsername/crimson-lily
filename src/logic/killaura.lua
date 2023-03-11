@@ -1,5 +1,5 @@
 local Killaura = {}
-ODYSSEY.Data.Killaura = Killaura
+ODYSSEY.Killaura = Killaura
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -39,17 +39,8 @@ function Killaura.KillOnce()
     end
 end
 
-local cancelled = false
-ODYSSEY.Maid:GiveTask(function()
-    cancelled = true
-end)
-
-task.spawn(function()
-    while not cancelled do
-        task.wait(2)
-    
-        if ODYSSEY.Data.KillauraActive then
-            Killaura.KillOnce()
-        end
+ODYSSEY.Timer(2, function()
+    if ODYSSEY.Data.KillauraActive then
+        Killaura.KillOnce()
     end
 end)

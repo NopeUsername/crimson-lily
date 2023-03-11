@@ -4,7 +4,7 @@ local Locations = require(ReplicatedStorage.RS.Modules.Locations)
 local UnloadedIslands = ReplicatedStorage.RS.UnloadIslands
 
 local Teleports = {}
-ODYSSEY.Data.Teleports = Teleports
+ODYSSEY.Teleports = Teleports
 
 function Teleports.GetRegions()
 	local regions = {}
@@ -119,3 +119,5 @@ function Teleports.TeleportToRegion(place)
 	character:SetPrimaryPartCFrame(CFrame.new(finalPos))
 	character.HumanoidRootPart.Anchored = false
 end
+
+Teleports.Regions = Teleports.GetRegions()

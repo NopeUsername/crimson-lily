@@ -228,17 +228,24 @@ function boxBase:Update()
             self.Components.Name.Text = self.Name
             self.Components.Name.Color = color
             
+            self.Components.Data.Visible = true
+            self.Components.Data.Position = Vector2.new(TagPos.X, TagPos.Y + 14)
+            self.Components.Data.Text = self.Data or ""
+            self.Components.Data.Color = color
+            
             self.Components.Distance.Visible = true
-            self.Components.Distance.Position = Vector2.new(TagPos.X, TagPos.Y + 14)
-            self.Components.Distance.Text = math.floor((cam.CFrame.p - cf.p).magnitude) .."m away"
+            self.Components.Distance.Position = Vector2.new(TagPos.X, TagPos.Y + 30)
+            self.Components.Distance.Text = math.floor((cam.CFrame.p - cf.p).magnitude) .."m"
             self.Components.Distance.Color = color
         else
             self.Components.Name.Visible = false
             self.Components.Distance.Visible = false
+            self.Components.Data.Visible = false
         end
     else
         self.Components.Name.Visible = false
         self.Components.Distance.Visible = false
+        self.Components.Data.Visible = false
     end
     
     if ESP.Tracers then
@@ -264,6 +271,7 @@ function ESP:Add(obj, options)
 
     local box = setmetatable({
         Name = options.Name or obj.Name,
+        Data = options.Data,
         Type = "Box",
         Color = options.Color --[[or self:GetColor(obj)]],
         Size = options.Size or self.BoxSize,
@@ -296,6 +304,16 @@ function ESP:Add(obj, options)
         Size = 19,
         Visible = self.Enabled and self.Names
 	})
+
+    box.Components["Data"] = Draw("Text", {
+		Text = options.Data or "",
+		Color = box.Color,
+		Center = true,
+		Outline = true,
+        Size = 19,
+        Visible = self.Enabled
+	})
+
 	box.Components["Distance"] = Draw("Text", {
 		Color = box.Color,
 		Center = true,
@@ -312,70 +330,20 @@ function ESP:Add(obj, options)
     })
     self.Objects[obj] = box
     
-    obj.AncestryChanged:Connect(function(_, parent)
-        if parent == nil and ESP.AutoRemove ~= false then
-            box:Remove()
-        end
-    end)
-    obj:GetPropertyChangedSignal("Parent"):Connect(function()
+    ODYSSEY.Maid:GiveTask(obj:GetPropertyChangedSignal("Parent"):Connect(function()
         if obj.Parent == nil and ESP.AutoRemove ~= false then
             box:Remove()
         end
-    end)
-
-    local hum = obj:FindFirstChildOfClass("Humanoid")
-	if hum then
-        hum.Died:Connect(function()
-            if ESP.AutoRemove ~= false then
-                box:Remove()
-            end
-		end)
-    end
+    end))
 
     return box
-end
-
-local function CharAdded(char)
-    local p = plrs:GetPlayerFromCharacter(char)
-    if not char:FindFirstChild("HumanoidRootPart") then
-        local ev
-        ev = char.ChildAdded:Connect(function(c)
-            if c.Name == "HumanoidRootPart" then
-                ev:Disconnect()
-                ESP:Add(char, {
-                    Name = p.Name,
-                    Player = p,
-                    PrimaryPart = c
-                })
-            end
-        end)
-    else
-        ESP:Add(char, {
-            Name = p.Name,
-            Player = p,
-            PrimaryPart = char.HumanoidRootPart
-        })
-    end
-end
-local function PlayerAdded(p)
-    p.CharacterAdded:Connect(CharAdded)
-    if p.Character then
-        coroutine.wrap(CharAdded)(p.Character)
-    end
-end
-ODYSSEY.Maid:GiveTask(plrs.PlayerAdded:Connect(PlayerAdded))
-for i,v in pairs(plrs:GetPlayers()) do
-    if v ~= plr then
-        PlayerAdded(v)
-    end
 end
 
 ODYSSEY.Maid:GiveTask(game:GetService("RunService").RenderStepped:Connect(function()
     cam = workspace.CurrentCamera
     for i,v in (ESP.Enabled and pairs or ipairs)(ESP.Objects) do
         if v.Update then
-            local s,e = pcall(v.Update, v)
-            if not s then warn("[EU]", e, v.Object:GetFullName()) end
+            pcall(v.Update, v)
         end
     end
 end))

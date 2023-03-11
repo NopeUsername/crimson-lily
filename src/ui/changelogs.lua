@@ -21,5 +21,15 @@ return {
             "Improved teleporting fr",
             "Added some banger shits"
         }
+    },
+    {
+        Date = "12/3/2023",
+        Entries = {
+            "Added force load around yourself",
+            "Improved ESPs in general, should no longer be outdated",
+            "Added unloaded ships tracker",
+            "Added region markers (yay)",
+            "All your configs are now saved, and will be loaded on run"
+        }
     }
 }

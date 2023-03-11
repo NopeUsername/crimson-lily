@@ -35,14 +35,39 @@ ODYSSEY.Maid:GiveTask(function()
     table.clear(ODYSSEY)
 end)
 
--- helpers
+-- read config file
+if isfile("CrimsonLily.json") then
+    local config = HttpService:JSONDecode(readfile("CrimsonLily.json"))
+    ODYSSEY.Data = config
+end
 
+-- helpers
 function ODYSSEY.GetLocalPlayer()
 	return Players.LocalPlayer
 end
 
 function ODYSSEY.GetLocalCharacter()
 	return ODYSSEY.GetLocalPlayer().Character
+end
+
+function ODYSSEY.Timer(interval, func)
+    local cancelled = false
+    ODYSSEY.Maid:GiveTask(function()
+        cancelled = true
+    end)
+
+    task.spawn(function()
+        while not cancelled do
+            func()
+            task.wait(interval)
+        end
+    end)
+end
+
+function ODYSSEY.InitData(name, value)
+    if ODYSSEY.Data[name] == nil then
+        ODYSSEY.Data[name] = value
+    end
 end
 
 do
@@ -80,3 +105,9 @@ end
 
 load("src/logic/gameplay.lua")
 load("src/ui/init.lua")
+
+-- config saving
+ODYSSEY.Timer(1, function()
+    local config = HttpService:JSONEncode(ODYSSEY.Data)
+    writefile("CrimsonLily.json", config)
+end)

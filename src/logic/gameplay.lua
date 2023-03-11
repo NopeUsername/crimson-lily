@@ -2,7 +2,7 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 
 local Gameplay = {}
-ODYSSEY.Data.Gameplay = Gameplay
+ODYSSEY.Gameplay = Gameplay
 
 function GetServers(placeId, limit)
     local servers = {}
@@ -67,3 +67,20 @@ function Gameplay.ServerHop()
         tonumber(ODYSSEY.Data.SelectedSlot)
     )
 end
+
+function Gameplay.Rejoin()
+    TeleportService:TeleportToPlaceInstance(
+        game.PlaceId,
+        game.JobId,
+        nil,
+        nil,
+        tonumber(ODYSSEY.Data.SelectedSlot)
+    )
+end
+
+ODYSSEY.Timer(1, function()
+    if not ODYSSEY.Data.ForceLoad then return end
+    
+    local hrp = ODYSSEY.GetLocalCharacter().HumanoidRootPart
+    ODYSSEY.LoadArea(hrp.Position, false)
+end)
