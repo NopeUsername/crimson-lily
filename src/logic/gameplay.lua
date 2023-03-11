@@ -16,8 +16,14 @@ function Gameplay.ServerHop()
     local resp = game:HttpGetAsync(endpoint)
     local data = HttpService:JSONDecode(resp).data
 
+    for idx, server in ipairs(data) do
+        if not server.playing then
+            -- dead server
+            table.remove(data, idx)
+        end
+    end
+
     table.sort(data, function(a, b)
-        if not a.playing or not b.playing then return false end
         return a.playing < b.playing
     end)
     if not data[1] then
