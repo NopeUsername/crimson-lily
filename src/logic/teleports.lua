@@ -100,6 +100,7 @@ function Teleports.TeleportToRegion(place)
 
 	for _, v in ipairs(model:GetDescendants()) do
 		if not v:IsA("BasePart") then continue end
+		if not v.CanCollide then continue end
 
 		if v.Position.Y + v.Size.Y/2 > highestY then
 			highestY = v.Position.Y + v.Size.Y/2
