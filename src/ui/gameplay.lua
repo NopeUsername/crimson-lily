@@ -26,10 +26,10 @@ return function(UILib, window)
         ODYSSEY.Data.SelectedSlot = value
     end)
     
-    tab:NewButton("Teleport", function()
+    tab:NewButton("Join random server", function()
         ODYSSEY.Data.Gameplay.LoadSlot()
     end)
-    tab:NewButton("Server hop", function()
+    tab:NewButton("Join empty server", function()
         ODYSSEY.Data.Gameplay.ServerHop()
     end)
 end
