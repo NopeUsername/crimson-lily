@@ -16,8 +16,13 @@ function KillModel(model)
     local humanoid = model:FindFirstChildOfClass("Humanoid")
     local hrp = model:FindFirstChild("HumanoidRootPart")
 
-    if not humanoid or not hrp then return end
-    if humanoid.Health <= 0 then return end
+	if model.Name ~= "Shark" then
+		if not humanoid or not hrp then return end
+		if humanoid.Health <= 0 then return end
+	else
+		local health = model.Attributes.Health.Value
+		if health <= 0 then return end
+	end
 
     if ODYSSEY.GetLocalPlayer():DistanceFromCharacter(hrp.Position) <= ODYSSEY.Data.KillauraRadius then
         for _ = 1, 10 do

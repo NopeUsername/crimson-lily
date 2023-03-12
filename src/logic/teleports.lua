@@ -126,3 +126,15 @@ function Teleports.TeleportToRegion(place)
 end
 
 Teleports.Regions = Teleports.GetRegions()
+
+--
+function Teleports.ToShip()
+	local boat = workspace.Boats:FindFirstChild(ODYSSEY.GetLocalPlayer().Name.. "Boat")
+	if not boat then
+		ODYSSEY.SendNotification(nil, "Crimson Lily", "You don't have a ship spawned.", Color3.new(1, 0, 0))
+		return
+	end
+
+	local character = ODYSSEY.GetLocalCharacter()
+	character:SetPrimaryPartCFrame(boat.PrimaryPart.CFrame * CFrame.new(0, 10, 0))
+end

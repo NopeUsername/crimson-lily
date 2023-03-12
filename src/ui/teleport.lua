@@ -1,6 +1,17 @@
 local Teleports = ODYSSEY.Teleports
 
+local function InitMisc(tab)
+	tab:NewSection("Misc teleports")
+	tab:NewButton("Teleport to your ship", function()
+		Teleports.ToShip()
+	end)
+
+	tab:NewLabel("")
+end
+
 local function InitPlaces(tab)
+	tab:NewSection("Place teleports")
+	
 	local regions = Teleports.Regions
 
 	for _, placeData in ipairs(regions) do
@@ -23,5 +34,6 @@ return function(UILib, window)
 	local tab = window:NewTab("Teleport")
 	tab:NewLabel('<b>DO NOT TELEPORT WHILE HOLDING BRONZE SEALED CHESTS. DO NOT TELEPORT WHILE HOLDING BRONZE SEALED CHESTS</b>')
 	
+	InitMisc(tab)
 	InitPlaces(tab)
 end

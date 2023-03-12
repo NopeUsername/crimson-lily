@@ -76,7 +76,7 @@ local function TrackBoat(boat)
 
     ESP:Add(boat, {
         Color = titleColor,
-        Size = boat:GetExtentsSize(),
+        Size = Vector3.new(1, 1, 1),
         Data = data,
         RenderInNil = true
     })
@@ -121,4 +121,11 @@ ODYSSEY.Timer(1, function()
     for _, boat in ipairs(UnloadedBoats2:GetChildren()) do
         TrackBoat(boat)
     end
+	
+	-- cleanup
+	for _, esp in pairs(ESP.Objects) do
+		if not esp.Object or not esp.Object:IsDescendantOf(game) then
+			esp:Remove()
+		end
+	end
 end)
