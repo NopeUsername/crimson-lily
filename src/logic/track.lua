@@ -124,7 +124,7 @@ ODYSSEY.Timer(1, function()
 	
 	-- cleanup
 	for _, esp in pairs(ESP.Objects) do
-		if not esp.Object or not esp.Object:IsDescendantOf(game) then
+		if (not esp.Object) or (not esp.Object:IsDescendantOf(game)) then
 			esp:Remove()
 		end
 	end
