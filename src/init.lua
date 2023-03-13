@@ -58,7 +58,10 @@ function ODYSSEY.Timer(interval, func)
 
     task.spawn(function()
         while not cancelled do
-            func()
+            local ok, err = pcall(func)
+            if not ok then
+                warn("[Crimson Lily] Timer error: ".. err)
+            end
             task.wait(interval)
         end
     end)
